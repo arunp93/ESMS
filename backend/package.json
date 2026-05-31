@@ -1,11 +1,15 @@
 {
   "name": "salary-management-backend",
   "version": "1.0.0",
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "scripts": {
     "dev": "ts-node-dev --respawn src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "test": "jest"
+    "test": "jest",
+    "seed": "prisma db seed"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
@@ -16,6 +20,7 @@
     "ts-jest": "^29.4.11"
   },
   "dependencies": {
+    "@faker-js/faker": "^10.4.0",
     "@prisma/client": "^6.19.3",
     "dotenv": "^17.4.2",
     "zod": "^4.4.3"
