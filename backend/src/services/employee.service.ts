@@ -10,8 +10,12 @@ export interface CreateEmployeeInput {
 }
 
 export class EmployeeService {
+  constructor(
+    private readonly db = prisma
+  ) {}
+
   async createEmployee(data: CreateEmployeeInput) {
-    return prisma.employee.create({
+    return this.db.employee.create({
       data,
     });
   }
