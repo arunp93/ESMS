@@ -11,6 +11,9 @@ import LoginPage
 import DashboardPage
   from "../pages/DashboardPage";
 
+import EmployeesPage
+  from "../pages/EmployeesPage";
+
 function ProtectedRoute({
   children,
 }: {
@@ -47,6 +50,15 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute>
               <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/employees"
+          element={
+            <ProtectedRoute>
+              <EmployeesPage />
             </ProtectedRoute>
           }
         />
