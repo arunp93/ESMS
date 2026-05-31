@@ -9,11 +9,8 @@ const router = Router();
 const controller =
   new SalaryController();
 
-router.put(
-  "/:id/salary",
-  asyncHandler(
-    controller.update.bind(controller)
-  )
-);
+router.put("/:id/salary",asyncHandler(controller.update.bind(controller)));
+
+router.get("/:id/salary-history",asyncHandler(controller.getHistory.bind(controller)));
 
 export default router;

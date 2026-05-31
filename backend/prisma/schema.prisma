@@ -20,6 +20,8 @@ model Employee {
   updatedAt    DateTime @updatedAt
 
   salary Salary?
+  salaryHistory SalaryHistory[]
+
 }
 
 model Salary {
@@ -33,6 +35,25 @@ model Salary {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+}
+
+  model SalaryHistory {
+  id             Int      @id @default(autoincrement())
+
+  employeeId     Int
+
+  oldBaseSalary  Float?
+  newBaseSalary  Float
+
+  oldBonus       Float?
+  newBonus       Float
+
+  effectiveDate  DateTime
+
+  createdAt      DateTime @default(now())
 
   employee Employee @relation(fields: [employeeId], references: [id])
 }
