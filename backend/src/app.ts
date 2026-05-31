@@ -5,6 +5,7 @@ import healthRouter from "./routes/health.route";
 import employeeRouter from "./routes/employee.route";
 import salaryRouter from "./routes/salary.route";
 import analyticsRouter from "./routes/analytics.route";
+import authRouter from "./routes/auth.route";
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use("/health", healthRouter);
 app.use("/employees", employeeRouter);
 app.use("/employees", salaryRouter);
 app.use("/analytics",analyticsRouter);
+app.use("/auth",authRouter);
 
 app.use(errorMiddleware);
 
