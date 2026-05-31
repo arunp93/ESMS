@@ -1,17 +1,24 @@
 import {
+  Alert,
   Box,
   Button,
+  CircularProgress,
   Paper,
   Table,
   TableBody,
   TableCell,
+  TableHead,
   TableRow,
   TextField,
   Typography,
 } from "@mui/material";
 
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+
+import {
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 
 import api from "../api/api";
 
@@ -23,25 +30,44 @@ interface Employee {
   email: string;
   department: string;
   designation: string;
+  status: string;
 }
 
 interface SalaryHistory {
   id: number;
+  employeeId: number;
+
   oldBaseSalary: number;
   newBaseSalary: number;
+
   oldBonus: number;
   newBonus: number;
+
+  effectiveDate: string;
   createdAt: string;
 }
 
 export default function EmployeeDetailsPage() {
-  const { id } = useParams();
+  const navigate =
+    useNavigate();
+
+  const { id } =
+    useParams();
 
   const [employee, setEmployee] =
-    useState<Employee | null>(null);
+    useState<Employee | null>(
+      null
+    );
 
-  const [salaryHistory, setSalaryHistory] =
-    useState<SalaryHistory[]>([]);
+  const [
+    salaryHistory,
+    setSalaryHistory,
+  ] = useState<
+    SalaryHistory[]
+  >([]);
+
+  const [loading, setLoading] =
+    useState(true);
 
   const [baseSalary, setBaseSalary] =
     useState("");
@@ -49,69 +75,125 @@ export default function EmployeeDetailsPage() {
   const [bonus, setBonus] =
     useState("");
 
+  const [success, setSuccess] =
+    useState("");
+
   useEffect(() => {
-    loadEmployee();
-    loadSalaryHistory();
+    loadData();
   }, []);
 
-  const loadEmployee = async () => {
-    const response =
-      await api.get(
-        `/employees/${id}`
-      );
-
-    setEmployee(
-      response.data
-    );
-  };
-
-  const loadSalaryHistory =
+  const loadData =
     async () => {
-      const response =
-        await api.get(
-          `/employees/${id}/salary-history`
+      try {
+        setLoading(true);
+
+        const [
+          employeeResponse,
+          historyResponse,
+        ] = await Promise.all([
+          api.get(
+            `/employees/${id}`
+          ),
+
+          api.get(
+            `/employees/${id}/salary-history`
+          ),
+        ]);
+
+        setEmployee(
+          employeeResponse.data
         );
 
-      setSalaryHistory(
-        response.data
-      );
+        setSalaryHistory(
+          historyResponse.data
+        );
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
     };
 
   const updateSalary =
     async () => {
-      await api.put(
-        `/employees/${id}/salary`,
-        {
-          baseSalary:
-            Number(
-              baseSalary
-            ),
+      try {
+        await api.put(
+          `/employees/${id}/salary`,
+          {
+            baseSalary:
+              Number(
+                baseSalary
+              ),
 
-          bonus:
-            Number(
-              bonus
-            ),
+            bonus:
+              Number(
+                bonus
+              ),
 
-          effectiveDate:
-            new Date(),
-        }
-      );
+            effectiveDate:
+              new Date(),
+          }
+        );
 
-      alert(
-        "Salary updated"
-      );
+        setSuccess(
+          "Salary updated successfully"
+        );
 
-      loadSalaryHistory();
+        setBaseSalary("");
+        setBonus("");
+
+        await loadData();
+      } catch (error) {
+        console.error(error);
+      }
     };
+
+  if (loading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        mt={10}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box p={4}>
-      <Typography
-        variant="h4"
-        gutterBottom
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={3}
       >
-        Employee Details
-      </Typography>
+        <Typography
+          variant="h4"
+        >
+          Employee Details
+        </Typography>
+
+        <Button
+          variant="outlined"
+          onClick={() =>
+            navigate(
+              "/employees"
+            )
+          }
+        >
+          Back
+        </Button>
+      </Box>
+
+      {success && (
+        <Alert
+          severity="success"
+          sx={{ mb: 3 }}
+        >
+          {success}
+        </Alert>
+      )}
 
       {employee && (
         <Paper
@@ -121,46 +203,59 @@ export default function EmployeeDetailsPage() {
           }}
         >
           <Typography>
-            Name:
-            {" "}
-            {
-              employee.firstName
-            }
-            {" "}
-            {
-              employee.lastName
-            }
-          </Typography>
-
-          <Typography>
-            Employee Code:
-            {" "}
+            <strong>
+              Employee Code:
+            </strong>{" "}
             {
               employee.employeeCode
             }
           </Typography>
 
           <Typography>
-            Email:
-            {" "}
+            <strong>
+              Name:
+            </strong>{" "}
+            {
+              employee.firstName
+            }{" "}
+            {
+              employee.lastName
+            }
+          </Typography>
+
+          <Typography>
+            <strong>
+              Email:
+            </strong>{" "}
             {
               employee.email
             }
           </Typography>
 
           <Typography>
-            Department:
-            {" "}
+            <strong>
+              Department:
+            </strong>{" "}
             {
               employee.department
             }
           </Typography>
 
           <Typography>
-            Designation:
-            {" "}
+            <strong>
+              Designation:
+            </strong>{" "}
             {
               employee.designation
+            }
+          </Typography>
+
+          <Typography>
+            <strong>
+              Status:
+            </strong>{" "}
+            {
+              employee.status
             }
           </Typography>
         </Paper>
@@ -179,47 +274,43 @@ export default function EmployeeDetailsPage() {
           Update Salary
         </Typography>
 
-        <TextField
-          label="Base Salary"
-          value={baseSalary}
-          onChange={(e) =>
-            setBaseSalary(
-              e.target.value
-            )
-          }
-          sx={{
-            mr: 2,
-          }}
-        />
-
-        <TextField
-          label="Bonus"
-          value={bonus}
-          onChange={(e) =>
-            setBonus(
-              e.target.value
-            )
-          }
-          sx={{
-            mr: 2,
-          }}
-        />
-
-        <Button
-          variant="contained"
-          onClick={
-            updateSalary
-          }
+        <Box
+          display="flex"
+          gap={2}
+          flexWrap="wrap"
         >
-          Update
-        </Button>
+          <TextField
+            label="Base Salary"
+            value={baseSalary}
+            onChange={(e) =>
+              setBaseSalary(
+                e.target.value
+              )
+            }
+          />
+
+          <TextField
+            label="Bonus"
+            value={bonus}
+            onChange={(e) =>
+              setBonus(
+                e.target.value
+              )
+            }
+          />
+
+          <Button
+            variant="contained"
+            onClick={
+              updateSalary
+            }
+          >
+            Update Salary
+          </Button>
+        </Box>
       </Paper>
 
-      <Paper
-        sx={{
-          p: 2,
-        }}
-      >
+      <Paper sx={{ p: 3 }}>
         <Typography
           variant="h6"
           gutterBottom
@@ -228,6 +319,30 @@ export default function EmployeeDetailsPage() {
         </Typography>
 
         <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>
+                Old Salary
+              </TableCell>
+
+              <TableCell>
+                New Salary
+              </TableCell>
+
+              <TableCell>
+                Old Bonus
+              </TableCell>
+
+              <TableCell>
+                New Bonus
+              </TableCell>
+
+              <TableCell>
+                Effective Date
+              </TableCell>
+            </TableRow>
+          </TableHead>
+
           <TableBody>
             {salaryHistory.map(
               (
@@ -240,25 +355,27 @@ export default function EmployeeDetailsPage() {
                 >
                   <TableCell>
                     ₹
-                    {
-                      history.oldBaseSalary
-                    }
-                  </TableCell>
-
-                  <TableCell>
-                    →
+                    {history.oldBaseSalary.toLocaleString()}
                   </TableCell>
 
                   <TableCell>
                     ₹
-                    {
-                      history.newBaseSalary
-                    }
+                    {history.newBaseSalary.toLocaleString()}
+                  </TableCell>
+
+                  <TableCell>
+                    ₹
+                    {history.oldBonus.toLocaleString()}
+                  </TableCell>
+
+                  <TableCell>
+                    ₹
+                    {history.newBonus.toLocaleString()}
                   </TableCell>
 
                   <TableCell>
                     {new Date(
-                      history.createdAt
+                      history.effectiveDate
                     ).toLocaleDateString()}
                   </TableCell>
                 </TableRow>
