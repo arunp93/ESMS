@@ -10,9 +10,22 @@ export class EmployeeController {
         return res.status(201).json(employee);
     }
 
-    async getAll(_req: Request, res: Response) {
+    async getAll(req: Request, res: Response) {
+        const page =
+            Number(req.query.page) || 1;
+
+        const limit =
+            Number(req.query.limit) || 20;
+
+        const search =
+            req.query.search?.toString();
+
         const employees =
-            await employeeService.getEmployees();
+            await employeeService.getEmployees(
+                page,
+                limit,
+                search
+            );
 
         return res.json(employees);
     }

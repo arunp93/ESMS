@@ -40,6 +40,7 @@ describe("EmployeeService", () => {
                 findMany: jest.fn().mockResolvedValue([
                     { id: 1 },
                 ]),
+                count: jest.fn().mockResolvedValue(1),
             },
         };
 
@@ -47,10 +48,12 @@ describe("EmployeeService", () => {
             mockPrisma as any
         );
 
-        const result =
-            await service.getEmployees();
+        const result = await service.getEmployees();
 
-        expect(result).toHaveLength(1);
+        expect(result.data).toHaveLength(1);
+
+        expect(result.pagination.total)
+            .toBe(1);
     });
 
     it("should return employee by id", async () => {
@@ -70,6 +73,58 @@ describe("EmployeeService", () => {
             await service.getEmployeeById(1);
 
         expect(result?.id).toBe(1);
+    });
+
+    it("should return paginated employees", async () => {
+        const mockPrisma = {
+            employee: {
+                findMany: jest
+                    .fn()
+                    .mockResolvedValue([{ id: 1 }]),
+                count: jest
+                    .fn()
+                    .mockResolvedValue(1),
+            },
+        };
+
+        const service =
+            new EmployeeService(
+                mockPrisma as any
+            );
+
+        const result =
+            await service.getEmployees();
+
+        expect(result.pagination.total)
+            .toBe(1);
+    });
+
+    it("should search employees", async () => {
+        const mockPrisma = {
+            employee: {
+                findMany: jest
+                    .fn()
+                    .mockResolvedValue([]),
+                count: jest
+                    .fn()
+                    .mockResolvedValue(0),
+            },
+        };
+
+        const service =
+            new EmployeeService(
+                mockPrisma as any
+            );
+
+        await service.getEmployees(
+            1,
+            20,
+            "arun"
+        );
+
+        expect(
+            mockPrisma.employee.findMany
+        ).toHaveBeenCalled();
     });
 
 });

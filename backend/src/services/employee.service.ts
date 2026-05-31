@@ -20,12 +20,64 @@ export class EmployeeService {
         });
     }
 
-    async getEmployees() {
-        return this.db.employee.findMany({
-            orderBy: {
-                createdAt: "desc",
+    async getEmployees(
+        page = 1,
+        limit = 20,
+        search?: string
+    ) {
+        const skip = (page - 1) * limit;
+
+        const where = search
+            ? {
+                OR: [
+                    {
+                        firstName: {
+                            contains: search,
+                        },
+                    },
+                    {
+                        lastName: {
+                            contains: search,
+                        },
+                    },
+                    {
+                        employeeCode: {
+                            contains: search,
+                        },
+                    },
+                    {
+                        email: {
+                            contains: search,
+                        },
+                    },
+                ],
+            }
+            : {};
+
+        const [employees, total] =
+            await Promise.all([
+                this.db.employee.findMany({
+                    where,
+                    skip,
+                    take: limit,
+                    orderBy: {
+                        createdAt: "desc",
+                    },
+                }),
+                this.db.employee.count({
+                    where,
+                }),
+            ]);
+
+        return {
+            data: employees,
+            pagination: {
+                page,
+                limit,
+                total,
+                totalPages: Math.ceil(total / limit),
             },
-        });
+        };
     }
 
     async getEmployeeById(id: number) {
