@@ -103,4 +103,23 @@ export class EmployeeService {
             },
         });
     }
+
+    async updateEmployee(
+        id: number,
+        data: Partial<CreateEmployeeInput>
+    ) {
+        const employee =
+            await this.db.employee.findUnique({
+                where: { id },
+            });
+
+        if (!employee) {
+            throw new Error("Employee not found");
+        }
+
+        return this.db.employee.update({
+            where: { id },
+            data,
+        });
+    }
 }

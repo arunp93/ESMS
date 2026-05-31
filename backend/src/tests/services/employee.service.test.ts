@@ -127,4 +127,115 @@ describe("EmployeeService", () => {
         ).toHaveBeenCalled();
     });
 
+    it("should update employee", async () => {
+        const mockPrisma = {
+            employee: {
+                findUnique: jest.fn().mockResolvedValue({
+                    id: 1,
+                }),
+                update: jest.fn().mockResolvedValue({
+                    id: 1,
+                    designation: "Senior Backend Engineer",
+                }),
+            },
+        };
+
+        const service = new EmployeeService(
+            mockPrisma as any
+        );
+
+        const result = await service.updateEmployee(
+            1,
+            {
+                designation:
+                    "Senior Backend Engineer",
+            }
+        );
+
+        expect(
+            mockPrisma.employee.findUnique
+        ).toHaveBeenCalledWith({
+            where: {
+                id: 1,
+            },
+        });
+
+        expect(
+            mockPrisma.employee.update
+        ).toHaveBeenCalledWith({
+            where: {
+                id: 1,
+            },
+            data: {
+                designation:
+                    "Senior Backend Engineer",
+            },
+        });
+
+        expect(
+            result.designation
+        ).toBe(
+            "Senior Backend Engineer"
+        );
+    });
+
+    it("should throw when employee does not exist", async () => {
+        const mockPrisma = {
+            employee: {
+                findUnique: jest.fn().mockResolvedValue(
+                    null
+                ),
+            },
+        };
+
+        const service = new EmployeeService(
+            mockPrisma as any
+        );
+
+        await expect(
+            service.updateEmployee(999, {
+                designation:
+                    "Senior Backend Engineer",
+            })
+        ).rejects.toThrow(
+            "Employee not found"
+        );
+
+        expect(
+            mockPrisma.employee.findUnique
+        ).toHaveBeenCalledWith({
+            where: {
+                id: 999,
+            },
+        });
+    });
+
+    it("should not update missing employee", async () => {
+        const mockPrisma = {
+            employee: {
+                findUnique: jest.fn().mockResolvedValue(
+                    null
+                ),
+                update: jest.fn(),
+            },
+        };
+
+        const service = new EmployeeService(
+            mockPrisma as any
+        );
+
+        await expect(
+            service.updateEmployee(999, {
+                designation:
+                    "Senior Backend Engineer",
+            })
+        ).rejects.toThrow(
+            "Employee not found"
+        );
+
+        expect(
+            mockPrisma.employee.update
+        ).not.toHaveBeenCalled();
+    });
+
 });

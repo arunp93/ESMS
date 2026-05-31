@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { EmployeeService } from "../services/employee.service";
 import {
-    createEmployeeSchema,
+    createEmployeeSchema,updateEmployeeSchema
 } from "../validators/employee.validator";
 
 const employeeService = new EmployeeService();
@@ -60,6 +60,31 @@ export class EmployeeController {
                 message: "Employee not found",
             });
         }
+
+        return res.json(employee);
+    }
+
+    async update(
+        req: Request,
+        res: Response
+    ) {
+        const parsed =
+            updateEmployeeSchema.safeParse(
+                req.body
+            );
+
+        if (!parsed.success) {
+            return res.status(400).json({
+                message: "Validation failed",
+                errors: parsed.error.flatten(),
+            });
+        }
+
+        const employee =
+            await employeeService.updateEmployee(
+                Number(req.params.id),
+                parsed.data
+            );
 
         return res.json(employee);
     }

@@ -25,5 +25,8 @@ export const createEmployeeSchema = z.object({
     .min(1),
 });
 
+export const updateEmployeeSchema =
+  createEmployeeSchema.partial();
+
 export type CreateEmployeeDto =
   z.infer<typeof createEmployeeSchema>;
