@@ -1,135 +1,156 @@
 import { PrismaClient } from "@prisma/client";
 import { faker } from "@faker-js/faker";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
 const DEPARTMENTS = [
-  "Engineering",
-  "HR",
-  "Finance",
-  "Sales",
-  "Marketing",
-  "Operations",
+    "Engineering",
+    "HR",
+    "Finance",
+    "Sales",
+    "Marketing",
+    "Operations",
 ];
 
 const DESIGNATIONS = [
-  "Associate",
-  "Senior Associate",
-  "Lead",
-  "Manager",
-  "Director",
+    "Associate",
+    "Senior Associate",
+    "Lead",
+    "Manager",
+    "Director",
 ];
 
 async function main() {
-  console.log(
-    "Cleaning existing data..."
-  );
+    console.log(
+        "Cleaning existing data..."
+    );
 
-  await prisma.salaryHistory.deleteMany();
+    await prisma.salaryHistory.deleteMany();
 
-  await prisma.salary.deleteMany();
+    await prisma.salary.deleteMany();
 
-  await prisma.employee.deleteMany();
+    await prisma.employee.deleteMany();
 
-  console.log(
-    "Generating employees..."
-  );
+    console.log(
+        "Generating employees..."
+    );
 
-  const employees = [];
+    const employees = [];
 
-  for (
-    let i = 1;
-    i <= 10000;
-    i++
-  ) {
-    employees.push({
-      employeeCode: `EMP${String(
-        i
-      ).padStart(5, "0")}`,
+    for (
+        let i = 1;
+        i <= 10000;
+        i++
+    ) {
+        employees.push({
+            employeeCode: `EMP${String(
+                i
+            ).padStart(5, "0")}`,
 
-      firstName:
-        faker.person.firstName(),
+            firstName:
+                faker.person.firstName(),
 
-      lastName:
-        faker.person.lastName(),
+            lastName:
+                faker.person.lastName(),
 
-      email:
-        `employee${i}@acme.com`,
+            email:
+                `employee${i}@acme.com`,
 
-      department:
-        DEPARTMENTS[
-          Math.floor(
-            Math.random() *
-            DEPARTMENTS.length
-          )
-        ],
+            department:
+                DEPARTMENTS[
+                Math.floor(
+                    Math.random() *
+                    DEPARTMENTS.length
+                )
+                ],
 
-      designation:
-        DESIGNATIONS[
-          Math.floor(
-            Math.random() *
-            DESIGNATIONS.length
-          )
-        ],
-    });
-  }
+            designation:
+                DESIGNATIONS[
+                Math.floor(
+                    Math.random() *
+                    DESIGNATIONS.length
+                )
+                ],
+        });
+    }
 
-  await prisma.employee.createMany({
-    data: employees,
-  });
-
-  console.log(
-    "Employees created"
-  );
-
-  const dbEmployees =
-    await prisma.employee.findMany({
-      select: {
-        id: true,
-      },
+    await prisma.employee.createMany({
+        data: employees,
     });
 
-  console.log(
-    "Generating salaries..."
-  );
+    console.log(
+        "Employees created"
+    );
 
-  await prisma.salary.createMany({
-    data: dbEmployees.map(
-      (employee) => ({
-        employeeId:
-          employee.id,
+    const dbEmployees =
+        await prisma.employee.findMany({
+            select: {
+                id: true,
+            },
+        });
 
-        baseSalary:
-          faker.number.int({
-            min: 300000,
-            max: 3000000,
-          }),
+    console.log(
+        "Generating salaries..."
+    );
 
-        bonus:
-          faker.number.int({
-            min: 0,
-            max: 500000,
-          }),
+    await prisma.salary.createMany({
+        data: dbEmployees.map(
+            (employee) => ({
+                employeeId:
+                    employee.id,
 
-        effectiveDate:
-          new Date(),
-      })
-    ),
-  });
+                baseSalary:
+                    faker.number.int({
+                        min: 300000,
+                        max: 3000000,
+                    }),
 
-  console.log(
-    "Seed completed"
-  );
+                bonus:
+                    faker.number.int({
+                        min: 0,
+                        max: 500000,
+                    }),
+
+                effectiveDate:
+                    new Date(),
+            })
+        ),
+    });
+
+    const passwordHash =
+        await bcrypt.hash(
+            "Admin@123",
+            10
+        );
+
+    await prisma.user.upsert({
+        where: {
+            email:
+                "hr.admin@acme.com",
+        },
+        update: {},
+        create: {
+            email:
+                "hr.admin@acme.com",
+            passwordHash,
+            role: "ADMIN",
+        },
+    });
+
+    console.log(
+        "Seed completed"
+    );
 }
 
 main()
-  .then(async () => {
-    await prisma.$disconnect();
-  })
-  .catch(async (error) => {
-    console.error(error);
+    .then(async () => {
+        await prisma.$disconnect();
+    })
+    .catch(async (error) => {
+        console.error(error);
 
-    await prisma.$disconnect();
+        await prisma.$disconnect();
 
-    process.exit(1);
-  });
+        process.exit(1);
+    });
