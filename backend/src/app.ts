@@ -1,5 +1,6 @@
 import express from "express";
 import healthRouter from "./routes/health.route";
+import employeeRouter from "./routes/employee.route";
 
 const app = express();
 
@@ -10,5 +11,6 @@ app.get("/", (_req, res) => {
 });
 
 app.use("/health", healthRouter);
+app.use("/employees", employeeRouter);
 
 export default app;
