@@ -4,7 +4,12 @@ import { AnalyticsController } from "../controllers/analytics.controller";
 
 import { asyncHandler } from "../utils/async-handler";
 
+import {
+  authenticate,
+} from "../middleware/auth.middleware";
+
 const router = Router();
+router.use(authenticate);
 
 const controller =
   new AnalyticsController();

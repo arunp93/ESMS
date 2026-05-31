@@ -1,9 +1,12 @@
 import { Router } from "express";
 import { asyncHandler } from "../utils/async-handler";
-
+import {
+  authenticate,
+} from "../middleware/auth.middleware";
 import { EmployeeController } from "../controllers/employee.controller";
 
 const router = Router();
+router.use(authenticate);
 const controller = new EmployeeController();
 
 router.post("/",asyncHandler(controller.create.bind(controller)));
