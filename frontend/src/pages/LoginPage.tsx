@@ -1,30 +1,34 @@
 import {
   Box,
-  Button,
   Paper,
-  TextField,
   Typography,
+  TextField,
+  Button,
 } from "@mui/material";
 
 export default function LoginPage() {
   return (
     <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      minHeight="100vh"
+      sx={{
+        height: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        bgcolor: "#f5f5f5",
+      }}
     >
       <Paper
+        elevation={3}
         sx={{
-          width: 400,
           p: 4,
+          width: 400,
         }}
       >
         <Typography
           variant="h5"
-          mb={3}
+          gutterBottom
         >
-          ESMS Login
+          Employee Salary Management
         </Typography>
 
         <TextField
@@ -41,8 +45,8 @@ export default function LoginPage() {
         />
 
         <Button
-          fullWidth
           variant="contained"
+          fullWidth
           sx={{ mt: 2 }}
         >
           Login

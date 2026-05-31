@@ -4,8 +4,7 @@ import {
   Route,
 } from "react-router-dom";
 
-import LoginPage
-  from "../pages/LoginPage";
+import LoginPage from "../pages/LoginPage";
 
 export default function AppRoutes() {
   return (
