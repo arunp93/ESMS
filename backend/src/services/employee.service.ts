@@ -1,4 +1,5 @@
 import prisma from "../lib/prisma";
+import { Prisma } from "@prisma/client";
 
 export interface CreateEmployeeInput {
     employeeCode: string;
@@ -14,10 +15,25 @@ export class EmployeeService {
         private readonly db = prisma
     ) { }
 
-    async createEmployee(data: CreateEmployeeInput) {
-        return this.db.employee.create({
-            data,
-        });
+    async createEmployee(
+        data: CreateEmployeeInput
+    ) {
+        try {
+            return await this.db.employee.create({
+                data,
+            });
+        } catch (error) {
+            if (
+                error instanceof Prisma.PrismaClientKnownRequestError &&
+                error.code === "P2002"
+            ) {
+                throw new Error(
+                    "Employee already exists"
+                );
+            }
+
+            throw error;
+        }
     }
 
     async getEmployees(

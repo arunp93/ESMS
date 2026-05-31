@@ -1,19 +1,15 @@
 import { Router } from "express";
+import { asyncHandler } from "../utils/async-handler";
+
 import { EmployeeController } from "../controllers/employee.controller";
 
 const router = Router();
 const controller = new EmployeeController();
 
-router.post("/", async (req, res) => {
-  await controller.create(req, res);
-});
+router.post("/",asyncHandler(controller.create.bind(controller)));
 
-router.get("/", async (req, res) => {
-  await controller.getAll(req, res);
-});
+router.get("/", asyncHandler(controller.getAll.bind(controller)));
 
-router.get("/:id", async (req, res) => {
-  await controller.getById(req, res);
-});
+router.get("/:id", asyncHandler(controller.getById.bind(controller)));
 
 export default router;
