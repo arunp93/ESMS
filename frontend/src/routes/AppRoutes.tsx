@@ -5,14 +5,10 @@ import {
   Navigate,
 } from "react-router-dom";
 
-import LoginPage
-  from "../pages/LoginPage";
-
-import DashboardPage
-  from "../pages/DashboardPage";
-
-import EmployeesPage
-  from "../pages/EmployeesPage";
+import LoginPage from "../pages/LoginPage";
+import DashboardPage from "../pages/DashboardPage";
+import EmployeesPage from "../pages/EmployeesPage";
+import EmployeeDetailsPage from "../pages/EmployeeDetailsPage";
 
 function ProtectedRoute({
   children,
@@ -20,9 +16,7 @@ function ProtectedRoute({
   children: React.ReactNode;
 }) {
   const token =
-    localStorage.getItem(
-      "token"
-    );
+    localStorage.getItem("token");
 
   if (!token) {
     return (
@@ -60,6 +54,25 @@ export default function AppRoutes() {
             <ProtectedRoute>
               <EmployeesPage />
             </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/employees/:id"
+          element={
+            <ProtectedRoute>
+              <EmployeeDetailsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="*"
+          element={
+            <Navigate
+              to="/dashboard"
+              replace
+            />
           }
         />
       </Routes>

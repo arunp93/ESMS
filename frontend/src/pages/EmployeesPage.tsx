@@ -13,6 +13,10 @@ import {
 
 import { useEffect, useState } from "react";
 
+import {
+  useNavigate,
+} from "react-router-dom";
+
 import api from "../api/api";
 
 interface Employee {
@@ -26,6 +30,9 @@ interface Employee {
 }
 
 export default function EmployeesPage() {
+  const navigate =
+    useNavigate();
+
   const [employees, setEmployees] =
     useState<Employee[]>([]);
 
@@ -34,15 +41,19 @@ export default function EmployeesPage() {
 
   const loadEmployees =
     async () => {
-      const response =
-        await api.get(
-          `/employees?search=${search}`
-        );
+      try {
+        const response =
+          await api.get(
+            `/employees?search=${search}`
+          );
 
-      setEmployees(
-        response.data.data ??
-          response.data
-      );
+        setEmployees(
+          response.data.data ??
+            response.data
+        );
+      } catch (error) {
+        console.error(error);
+      }
     };
 
   useEffect(() => {
@@ -51,20 +62,37 @@ export default function EmployeesPage() {
 
   return (
     <Box p={4}>
-      <Typography
-        variant="h4"
-        gutterBottom
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={3}
       >
-        Employees
-      </Typography>
+        <Typography
+          variant="h4"
+        >
+          Employees
+        </Typography>
+
+        <Button
+          variant="outlined"
+          onClick={() =>
+            navigate(
+              "/dashboard"
+            )
+          }
+        >
+          Dashboard
+        </Button>
+      </Box>
 
       <Box
         display="flex"
         gap={2}
-        mb={2}
+        mb={3}
       >
         <TextField
-          label="Search"
+          label="Search Employee"
           value={search}
           onChange={(e) =>
             setSearch(
@@ -88,7 +116,7 @@ export default function EmployeesPage() {
           <TableHead>
             <TableRow>
               <TableCell>
-                Code
+                Employee Code
               </TableCell>
 
               <TableCell>
@@ -117,6 +145,16 @@ export default function EmployeesPage() {
                 <TableRow
                   key={
                     employee.id
+                  }
+                  hover
+                  sx={{
+                    cursor:
+                      "pointer",
+                  }}
+                  onClick={() =>
+                    navigate(
+                      `/employees/${employee.id}`
+                    )
                   }
                 >
                   <TableCell>
