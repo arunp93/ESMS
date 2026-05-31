@@ -1,11 +1,30 @@
 import { Request, Response } from "express";
 import { EmployeeService } from "../services/employee.service";
+import {
+    createEmployeeSchema,
+} from "../validators/employee.validator";
 
 const employeeService = new EmployeeService();
 
 export class EmployeeController {
+
     async create(req: Request, res: Response) {
-        const employee = await employeeService.createEmployee(req.body);
+        const parsed =
+            createEmployeeSchema.safeParse(
+                req.body
+            );
+
+        if (!parsed.success) {
+            return res.status(400).json({
+                message: "Validation failed",
+                errors: parsed.error.flatten(),
+            });
+        }
+
+        const employee =
+            await employeeService.createEmployee(
+                parsed.data
+            );
 
         return res.status(201).json(employee);
     }
