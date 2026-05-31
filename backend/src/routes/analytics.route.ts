@@ -12,6 +12,10 @@ import {
   authenticate,
 } from "../middleware/auth.middleware";
 
+import {
+  withETag,
+} from "../middleware/etag.middleware";
+
 const router = Router();
 
 const controller =
@@ -21,9 +25,10 @@ router.get(
   "/payroll-summary",
   authenticate,
   authorize(
-  "ADMIN",
-  "HR_MANAGER"
-),
+    "ADMIN",
+    "HR_MANAGER"
+  ),
+  withETag,
   asyncHandler(
     controller.getPayrollSummary.bind(
       controller
@@ -38,6 +43,7 @@ router.get(
     "ADMIN",
     "HR_MANAGER"
   ),
+  withETag,
   asyncHandler(
     controller.getHighestPaidEmployees.bind(
       controller
@@ -52,6 +58,7 @@ router.get(
     "ADMIN",
     "HR_MANAGER"
   ),
+  withETag,
   asyncHandler(
     controller.getDepartmentBreakdown.bind(
       controller

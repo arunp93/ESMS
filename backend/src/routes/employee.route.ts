@@ -6,6 +6,9 @@ import {
 import {
   authorize
 } from "../middleware/authorization.middleware";
+import {
+  withETag,
+} from "../middleware/etag.middleware";
 import { EmployeeController } from "../controllers/employee.controller";
 
 const router = Router();
@@ -27,6 +30,7 @@ router.get(
     "ADMIN",
     "HR_MANAGER"
   ),
+  withETag,
   asyncHandler(
     controller.getAll.bind(controller)
   )
@@ -39,6 +43,7 @@ router.get(
     "ADMIN",
     "HR_MANAGER"
   ),
+  withETag,
   asyncHandler(
     controller.getById.bind(controller)
   )
