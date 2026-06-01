@@ -9,6 +9,7 @@ import LoginPage from "../pages/LoginPage";
 import DashboardPage from "../pages/DashboardPage";
 import EmployeesPage from "../pages/EmployeesPage";
 import EmployeeDetailsPage from "../pages/EmployeeDetailsPage";
+import DashboardLayout from "../layouts/DashboardLayout";
 
 function ProtectedRoute({
   children,
@@ -27,7 +28,7 @@ function ProtectedRoute({
     );
   }
 
-  return <>{children}</>;
+  return <DashboardLayout>{children}</DashboardLayout>;
 }
 
 export default function AppRoutes() {
